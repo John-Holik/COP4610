@@ -20,7 +20,7 @@ int availableSpots;        // Var to track available parking spots
 
 // Parking 
 //****************************************************************************************************************//
-void *parking(void* arg){
+void* parking(void* arg){
     int carId = *((int *)arg);
 
     // Simulate random arrival time (2 to 7 seconds)
@@ -43,7 +43,7 @@ void *parking(void* arg){
     availableSpots++;
     sem_post(&parkingSpots);
 
-    return NULL;
+    return;
 } // end parking
 
 
