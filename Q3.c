@@ -12,11 +12,20 @@
 #include <unistd.h>
 #include <time.h>
 
+// Global Vars
+//****************************************************************************************************************//
 sem_t parkingSpots;
 int numOfParkingSpots = 5; // Number of parking spots
 int availableSpots;        // Var to track available parking spots
-void parking(void* arg){
+
+// Parking 
+//****************************************************************************************************************//
+void *parking(void* arg){
     int carId = *((int *)arg);
+
+    // Simulate random arrival time (2 to 7 seconds)
+    int arrivalTime = (rand() % (7 - 2 + 1)) + 2; // Range: 2 to 7 seconds
+    sleep(arrivalTime);
     printf("Car %d arriving. Available spots: %d\n", carId, availableSpots);
 
     // Wait for open parking spot
@@ -35,7 +44,7 @@ void parking(void* arg){
     sem_post(&parkingSpots);
 
     return NULL;
-}
+} // end parking
 
 
 // Main
