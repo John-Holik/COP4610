@@ -5,27 +5,67 @@
 //          make coffee for customers. Baristas can only make coffee if they have exclusive access to all three
 //          coffee machines.
 
+
 #include <stdio.h>
-#include <stdlib.h>
 #include <pthread.h>
-#include <semaphore.h>
 #include <unistd.h>
 
-#define NUM_BARISTAS 5
-#define NUM_MACHINES 3
+// Define mutex locks for the three coffee machines
+//****************************************************************************************************************//
+pthread_mutex_t left_machine = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t center_machine = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t right_machine = PTHREAD_MUTEX_INITIALIZER;
 
-sem_t machines[NUM_MACHINES]; // Semaphores for each machine
-pthread_mutex_t print_mutex; // Mutex for outputting
+
+// Barista function to make coffee
+//****************************************************************************************************************//
+void *barista(void *arg)
+{
+    int id = *(int *)arg; // Barista ID
+
+    printf("Barista %d is waiting for machines.\n", id);
+
+    // Acquire locks for all three machines (left, center, right)
+    pthread_mutex_lock(&left_machine);
+    pthread_mutex_lock(&center_machine);
+    pthread_mutex_lock(&right_machine);
+
+    // Now the barista has access to all machines
+    printf("Barista %d has acquired all machines and is making coffee.\n", id);
+    sleep(2); // Simulate time taken to make coffee
+
+    // Release the locks after making coffee
+    pthread_mutex_unlock(&right_machine);
+    pthread_mutex_unlock(&center_machine);
+    pthread_mutex_unlock(&left_machine);
+
+    printf("Barista %d has finished making coffee and released the machines.\n", id);
+
+    return NULL;
+}// end barista
 
 
-int main() {
-    pthread_t baristaThread[NUM_BARISTAS];
 
-    for(int i = 0; i < NUM_MACHINES; i++){ // Create machines and have them unlocked
-        sem_init(&machines[i], 0, 1);
+// Main
+//****************************************************************************************************************//
+int main()
+{
+    // Create an array of 5 threads
+    pthread_t baristas[5];
+    int barista_ids[5];
+
+    // Create threads representing 5 baristas
+    for (int i = 0; i < 5; i++)
+    {
+        barista_ids[i] = i + 1;
+        pthread_create(&baristas[i], NULL, barista, &barista_ids[i]);
     }
 
-
+    // Wait for all baristas to finish
+    for (int i = 0; i < 5; i++)
+    {
+        pthread_join(baristas[i], NULL);
+    }
 
     return 0;
-}
+} // end main
